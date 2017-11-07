@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native'
 import styled from 'styled-components/native'
 
@@ -19,7 +20,7 @@ import {
   ButtonGreen,
   ButtonText,
   GridTop,
-  GridFooter
+  GridFooter,
 } from './styledComponents'
 import { getDecks } from '../utils/api'
 import { receiveDecks } from '../actions'
@@ -27,13 +28,13 @@ import { white } from '../utils/colors'
 
 class Decks extends Component {
   state = {
-    isReady: false
+    isReady: false,
   }
 
   async _getDataAndCacheResourcesAsync(dispatch) {
     await getDecks().then(decks => dispatch(receiveDecks(decks)))
     await Font.loadAsync({
-      'roboto-light': require('../assets/fonts/Roboto-Light.ttf')
+      'roboto-light': require('../assets/fonts/Roboto-Light.ttf'),
     })
   }
 
@@ -56,20 +57,22 @@ class Decks extends Component {
     const { decks, navigation } = this.props
     return (
       <GreenView>
-        <GridTop>
-          {Object.keys(decks).map(deckname => (
-            <DeckView
-              key={deckname}
-              onPress={() =>
-                navigation.navigate('Deck', { title: decks[deckname].title })}
-            >
-              <DeckTitleText>{decks[deckname].title}</DeckTitleText>
-              <DeckSubTitleText>
-                {decks[deckname].questions.length} Card(s)
-              </DeckSubTitleText>
-            </DeckView>
-          ))}
-        </GridTop>
+        <ScrollView>
+          <GridTop>
+            {Object.keys(decks).map(deckname => (
+              <DeckView
+                key={deckname}
+                onPress={() =>
+                  navigation.navigate('Deck', { title: decks[deckname].title })}
+              >
+                <DeckTitleText>{decks[deckname].title}</DeckTitleText>
+                <DeckSubTitleText>
+                  {decks[deckname].questions.length} Card(s)
+                </DeckSubTitleText>
+              </DeckView>
+            ))}
+          </GridTop>
+        </ScrollView>
         <GridFooter>
           <ButtonGreen onPress={() => navigation.navigate('addDeck')}>
             <ButtonText>Add Deck</ButtonText>
@@ -94,7 +97,7 @@ class Decks extends Component {
 
 function mapStateToProps(decks) {
   return {
-    decks
+    decks,
   }
 }
 
