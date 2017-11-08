@@ -9,14 +9,14 @@ function getDummyData() {
       questions: [
         {
           question: 'What is React?',
-          answer: 'A library for managing user interfaces'
+          answer: 'A library for managing user interfaces',
         },
         {
           question: 'Where do you make Ajax requests in React?',
-          answer: 'The componentDidMount lifecycle event'
-        }
+          answer: 'The componentDidMount lifecycle event',
+        },
       ],
-      correct: 0
+      correct: 0,
     },
     JavaScript: {
       title: 'JavaScript',
@@ -24,11 +24,11 @@ function getDummyData() {
         {
           question: 'What is a closure?',
           answer:
-            'The combination of a function and the lexical environment within which that function was declared.'
-        }
+            'The combination of a function and the lexical environment within which that function was declared.',
+        },
       ],
-      correct: 0
-    }
+      correct: 0,
+    },
   }
 
   AsyncStorage.setItem(KEY, JSON.stringify(dummyData))
@@ -57,8 +57,8 @@ export function saveDeckTitle(title) {
       [title]: {
         title,
         questions: [],
-        success: 0
-      }
+        success: 0,
+      },
     })
   )
 }
@@ -73,8 +73,8 @@ export function addCardToDeck(title, card) {
       KEY,
       JSON.stringify({
         [title]: {
-          questions: res[title].questions
-        }
+          questions: res[title].questions,
+        },
       })
     )
   })

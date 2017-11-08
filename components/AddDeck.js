@@ -30,7 +30,6 @@ class addDeck extends Component {
     } else {
       this.props.createNewDeck(title)
       saveDeckTitle(title)
-      //this.props.navigation.navigate('Deck', { title })
       this.props.navigation.dispatch(
         NavigationActions.navigate({
           routeName: 'Deck',

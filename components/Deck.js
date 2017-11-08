@@ -54,12 +54,6 @@ Deck.propTypes = {
   }).isRequired,
 }
 
-/*function mapStateToProps(decks) {
-  return {
-    decks,
-  }
-}*/
-
 function mapStateToProps({ decks }, { navigation }) {
   const { deck } = navigation.state.params
 

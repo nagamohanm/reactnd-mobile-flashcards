@@ -38,9 +38,7 @@ class Quiz extends Component {
   updateQuizAndNavigate = () => {
     const { decks, navigation } = this.props
     const { title, id } = navigation.state.params
-    console.log('id', id)
-    console.log('index', this.state.index)
-    console.log('correct', this.state.correctAnswers)
+
     // Count correct Answer and Store this in the Redux Store
     this.props.dispatch(updateSuccess(id, this.state.correctAnswers))
   }
