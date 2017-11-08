@@ -63,7 +63,7 @@ class Decks extends Component {
               <DeckView
                 key={deckname}
                 onPress={() =>
-                  navigation.navigate('Deck', { title: decks[deckname].title })}
+                  navigation.navigate('Deck', { deck: decks[deckname] })}
               >
                 <DeckTitleText>{decks[deckname].title}</DeckTitleText>
                 <DeckSubTitleText>

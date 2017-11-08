@@ -2,7 +2,7 @@ import {
   RECEIVE_DECKS,
   CREATE_NEW_DECK,
   CREATE_NEW_CARD,
-  UPDATE_SUCCESS
+  UPDATE_SUCCESS,
 } from '../actions/types'
 import { getDecks } from '../utils/api'
 
@@ -16,13 +16,13 @@ function decks(state = {}, action) {
         [action.title]: {
           title: action.title,
           questions: [],
-          correct: 0
-        }
+          correct: 0,
+        },
       }
     case CREATE_NEW_CARD:
       state[action.deckName].questions.push({
         question: action.question,
-        answer: action.answer
+        answer: action.answer,
       })
       return state
     case UPDATE_SUCCESS:

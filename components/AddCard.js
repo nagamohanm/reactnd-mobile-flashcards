@@ -1,6 +1,6 @@
-import React, { Component } from "react"
-import { connect } from "react-redux"
-import { View } from "react-native"
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { View } from 'react-native'
 import {
   MyKeyboardAvoidingView,
   MyTextInput,
@@ -10,31 +10,31 @@ import {
   GreenLightView,
   Button,
   ButtonGreen,
-  ButtonText
-} from "./styledComponents"
-import { createNewCard } from "../actions"
-import { addCardToDeck } from "../utils/api"
-import { gray, darkred } from "../utils/colors"
-import { NavigationActions } from "react-navigation"
+  ButtonText,
+} from './styledComponents'
+import { createNewCard } from '../actions'
+import { addCardToDeck } from '../utils/api'
+import { gray, darkred } from '../utils/colors'
+import { NavigationActions } from 'react-navigation'
 
 class addCard extends Component {
   state = {
-    textQuestion: "Enter your Question",
-    textAnswer: "Enter your Answer",
-    color: gray
+    textQuestion: 'Enter your Question',
+    textAnswer: 'Enter your Answer',
+    color: gray,
   }
 
   onSubmitForm = () => {
     if (
-      this.state.textQuestion === "" ||
-      this.state.textQuestion === "Enter your Question"
+      this.state.textQuestion === '' ||
+      this.state.textQuestion === 'Enter your Question'
     ) {
-      this.setState({ textQuestion: "Enter your Question", color: darkred })
+      this.setState({ textQuestion: 'Enter your Question', color: darkred })
     } else if (
-      this.state.textAnswer === "" ||
-      this.state.textAnswer === "Enter your Answer"
+      this.state.textAnswer === '' ||
+      this.state.textAnswer === 'Enter your Answer'
     ) {
-      this.setState({ textAnswer: "Enter your Answer", color: darkred })
+      this.setState({ textAnswer: 'Enter your Answer', color: darkred })
     } else {
       this.props.dispatch(
         createNewCard(
@@ -45,9 +45,19 @@ class addCard extends Component {
       )
       addCardToDeck(this.props.navigation.state.params.id, {
         question: this.state.textQuestion,
-        answer: this.state.textAnswer
+        answer: this.state.textAnswer,
       })
-      this.props.navigation.goBack()
+
+      const { decks } = this.props
+
+      this.props.navigation.dispatch(
+        NavigationActions.navigate({
+          routeName: 'Deck',
+          params: {
+            deck: decks[this.props.navigation.state.params.id],
+          },
+        })
+      )
     }
   }
 
@@ -85,7 +95,7 @@ class addCard extends Component {
 
 function mapStateToProps(decks) {
   return {
-    decks
+    decks,
   }
 }
 

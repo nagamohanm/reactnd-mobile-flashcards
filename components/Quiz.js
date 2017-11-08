@@ -1,169 +1,178 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import { ProgressViewIOS, Platform, ProgressBarAndroid } from 'react-native'
 import styled from 'styled-components/native'
 import { white, mediumdarkblue, mediumdarkred, darkblue } from '../utils/colors'
 import { connect } from 'react-redux'
-import { 
-  TextLink, 
-  GridTop, 
-  GridBottom, 
-  BigBlueText, 
-  SmallBlueText, 
-  GreenLightView, 
-  Button, 
-  ButtonGreen, 
-  ButtonText, 
-  ButtonRed, 
-  BlueText, 
+import {
+  TextLink,
+  GridTop,
+  GridBottom,
+  BigBlueText,
+  SmallBlueText,
+  GreenLightView,
+  Button,
+  ButtonGreen,
+  ButtonText,
+  ButtonRed,
+  BlueText,
   BlueButtonText,
 } from './styledComponents'
 import { updateSuccess } from '../actions'
 import { NavigationActions } from 'react-navigation'
-import { clearLocalNotification, setLocalNotification } from '../utils/notifications'
+import {
+  clearLocalNotification,
+  setLocalNotification,
+} from '../utils/notifications'
 
 class Quiz extends Component {
-
-  state = {
-    showAnswer: false
+  constructor(props) {
+    super(props)
+    this.state = {
+      isOver: false,
+      showAnswer: false,
+      correctAnswers: 0,
+      index: 0,
+    }
   }
 
-  answer = (value) => {
+  updateQuizAndNavigate = () => {
     const { decks, navigation } = this.props
-    const { title, id, counter } = navigation.state.params
+    const { title, id } = navigation.state.params
     console.log('id', id)
-    console.log('counter', counter)
-
-    const correct = counter === 0 ? value : decks[id].correct + value
-
-    console.log('correct', correct)
+    console.log('index', this.state.index)
+    console.log('correct', this.state.correctAnswers)
     // Count correct Answer and Store this in the Redux Store
-    this.props.dispatch(updateSuccess(id, correct))
-    // Go to next Question
-    navigation.navigate('Quiz', {
-      title,
-      id,
-      counter: counter+1
-    })
+    this.props.dispatch(updateSuccess(id, this.state.correctAnswers))
+  }
+
+  submitAnswer = value => {
+    this.setState((prevState, props) => {
+      const { decks, navigation } = this.props
+      const { id } = navigation.state.params
+      const currentdeck = decks[id]
+      const isOver = prevState.index === currentdeck.questions.length - 1
+
+      return {
+        isOver,
+        index: prevState.index + (isOver ? 0 : 1),
+        correctAnswers: prevState.correctAnswers + (value ? 1 : 0),
+      }
+    }, this.updateQuizAndNavigate)
   }
 
   showAnswer = () => {
-    this.setState(() => ({showAnswer: true}))
+    this.setState(() => ({ showAnswer: true }))
   }
 
   showQuestion = () => {
-    this.setState(() => ({showAnswer: false}))
+    this.setState(() => ({ showAnswer: false }))
   }
 
   finishQuiz = () => {
-    this.props.navigation.dispatch(NavigationActions.reset({
-      index: 0,
-      actions: [
-        NavigationActions.navigate({ routeName: 'Deck'})
-      ]
-    }))
-    clearLocalNotification().
-      then(setLocalNotification)
+    const { decks, navigation } = this.props
+    const { id } = navigation.state.params
+    navigation.goBack()
+    clearLocalNotification().then(setLocalNotification)
   }
 
-  render(){
-    const {decks, navigation} = this.props
-    const {id, counter} = navigation.state.params
+  render() {
+    const { decks, navigation } = this.props
+    const { id } = navigation.state.params
     const currentdeck = decks[id]
-    const progress = counter/currentdeck.questions.length
+    const { correctAnswers, index, isOver } = this.state
+    const progress = index / currentdeck.questions.length
 
-    return(
+    return (
       <GreenLightView>
-        { counter<currentdeck.questions.length
-          ?
-            <GreenLightView>
-              {Platform.OS === "ios"
-                ?
-                  <ProgressViewIOS
-                    progress={progress}
-                    progressTintColor={white}
-                    trackTintColor={mediumdarkblue}
-                    progressViewStyle='bar'
-                    style={{paddingBottom: 10, marginTop: 20}}
-                  />
-                :
-                <ProgressBarAndroid
-                  progress={progress}
-                  color={white}
-                  trackTintColor={mediumdarkblue}
-                  styleAttr = 'Horizontal'
-                  indeterminate={false}
-                  style={{marginTop: 20}}
-                />
-              }
+        {!isOver ? (
+          <GreenLightView>
+            {Platform.OS === 'ios' ? (
+              <ProgressViewIOS
+                progress={progress}
+                progressTintColor={white}
+                trackTintColor={mediumdarkblue}
+                progressViewStyle="bar"
+                style={{ paddingBottom: 10, marginTop: 20 }}
+              />
+            ) : (
+              <ProgressBarAndroid
+                progress={progress}
+                color={white}
+                trackTintColor={mediumdarkblue}
+                styleAttr="Horizontal"
+                indeterminate={false}
+                style={{ marginTop: 20 }}
+              />
+            )}
 
-              <SmallBlueText>{counter+1}/{currentdeck.questions.length}</SmallBlueText>
-              { this.state.showAnswer===true
-                ?
-                  <GridTop>
-                    <BlueText>
-                      {currentdeck.questions[counter].answer}
-                    </BlueText>
-                    <TextLink onPress={()=>(this.showQuestion())}>
-                      <BlueButtonText>Show Question</BlueButtonText>
-                    </TextLink>
-                  </GridTop>
-                :
-                <GridTop>
-                  <BigBlueText>
-                    {currentdeck.questions[counter].question}
-                  </BigBlueText>
-                  <TextLink onPress={()=>(this.showAnswer())}>
-                    <BlueButtonText>Show Answer</BlueButtonText>
-                  </TextLink>
-                </GridTop>
-              }
-              <GridBottom>
-                <ButtonGreen onPress={() => this.answer(1)}>
-                  <ButtonText>Correct</ButtonText>
-                </ButtonGreen>
-                <ButtonRed onPress={() => this.answer(0)}>
-                  <ButtonText>Incorrect</ButtonText>
-                </ButtonRed>
-              </GridBottom>
-            </GreenLightView>
-          :
+            <SmallBlueText>
+              {index + 1}/{currentdeck.questions.length}
+            </SmallBlueText>
+            {this.state.showAnswer === true ? (
+              <GridTop>
+                <BlueText>{currentdeck.questions[index].answer}</BlueText>
+                <TextLink onPress={() => this.showQuestion()}>
+                  <BlueButtonText>Show Question</BlueButtonText>
+                </TextLink>
+              </GridTop>
+            ) : (
+              <GridTop>
+                <BigBlueText>
+                  {currentdeck.questions[index].question}
+                </BigBlueText>
+                <TextLink onPress={() => this.showAnswer()}>
+                  <BlueButtonText>Show Answer</BlueButtonText>
+                </TextLink>
+              </GridTop>
+            )}
+            <GridBottom>
+              <ButtonGreen onPress={() => this.submitAnswer(true)}>
+                <ButtonText>Correct</ButtonText>
+              </ButtonGreen>
+              <ButtonRed onPress={() => this.submitAnswer(false)}>
+                <ButtonText>Incorrect</ButtonText>
+              </ButtonRed>
+            </GridBottom>
+          </GreenLightView>
+        ) : (
           <GreenLightView>
             <SmallBlueText>All questions answered!</SmallBlueText>
             <GridTop>
-              <SmallBlueText>
-                Correct answers:
-              </SmallBlueText>
+              <SmallBlueText>Correct answers:</SmallBlueText>
               <BigBlueText>
-                {Math.round(100*currentdeck.correct/currentdeck.questions.length)}%
+                {Math.round(
+                  100 * correctAnswers / currentdeck.questions.length
+                )}%
               </BigBlueText>
               <SmallBlueText>
-                {`This is ${currentdeck.correct} out of ${currentdeck.questions.length} questions.`}
+                {`This is ${correctAnswers} out of ${currentdeck.questions
+                  .length} questions.`}
               </SmallBlueText>
             </GridTop>
             <GridBottom>
-              <ButtonGreen onPress={() => navigation.navigate('Quiz', { title: `${currentdeck.title} Quiz`, id: currentdeck.title, counter: 0 }) }>
+              <ButtonGreen
+                onPress={() =>
+                  navigation.navigate('Quiz', {
+                    title: `${currentdeck.title} Quiz`,
+                    id: currentdeck.title,
+                  })}
+              >
                 <ButtonText>Start again</ButtonText>
               </ButtonGreen>
-              <Button onPress={() => navigation.dispatch(NavigationActions.reset(
-                 {
-                    index: 0,
-                    actions: [
-                      NavigationActions.navigate({ routeName: 'Decks'})
-                    ]
-                  }))}>
+              <Button onPress={() => this.finishQuiz()}>
                 <ButtonText>Finish</ButtonText>
               </Button>
             </GridBottom>
           </GreenLightView>
-        }
+        )}
       </GreenLightView>
     )
   }
 }
 
-function mapStateToProps (decks) {
+function mapStateToProps(decks) {
   return {
-    decks
+    decks,
   }
 }
 

@@ -1,42 +1,69 @@
-import React, {Component} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { GridTop, GridBottom, BigBlueText, SmallBlueText, GreenLightView, Button, ButtonGreen, ButtonText } from './styledComponents'
+import {
+  GridTop,
+  GridBottom,
+  BigBlueText,
+  SmallBlueText,
+  GreenLightView,
+  Button,
+  ButtonGreen,
+  ButtonText,
+} from './styledComponents'
 
-class Deck extends Component {
+const Deck = props => {
+  const { navigation } = props
+  const { deck } = navigation.state.params
 
-  render(){
-    const {decks, navigation} = this.props
-    const currentdeck = decks[navigation.state.params.title]
-
-    return(
-      <GreenLightView>
-        <GridTop>
-          <BigBlueText>
-            {navigation.state.params.title}
-          </BigBlueText>
-          <SmallBlueText>
-            {currentdeck.questions.length} Card(s)
-          </SmallBlueText>
-        </GridTop>
-        <GridBottom>
-          <Button onPress={() => navigation.navigate('addCard', {id: currentdeck.title})}>
-            <ButtonText>Add Card</ButtonText>
-          </Button>
-          { currentdeck.questions.length > 0 &&
-            <ButtonGreen onPress={() => navigation.navigate('Quiz', { title: `${currentdeck.title} Quiz`, id: currentdeck.title, counter: 0 })} >
-              <ButtonText>Start Quiz</ButtonText>
-            </ButtonGreen>
-          }
-        </GridBottom>
-      </GreenLightView>
-    )
-  }
+  return (
+    <GreenLightView>
+      <GridTop>
+        <BigBlueText>{deck.title}</BigBlueText>
+        <SmallBlueText>{deck.questions.length} Card(s)</SmallBlueText>
+      </GridTop>
+      <GridBottom>
+        <Button
+          onPress={() => navigation.navigate('addCard', { id: deck.title })}
+        >
+          <ButtonText>Add Card</ButtonText>
+        </Button>
+        {deck.questions.length > 0 && (
+          <ButtonGreen
+            onPress={() =>
+              navigation.navigate('Quiz', {
+                title: `${deck.title} Quiz`,
+                id: deck.title,
+              })}
+          >
+            <ButtonText>Start Quiz</ButtonText>
+          </ButtonGreen>
+        )}
+      </GridBottom>
+    </GreenLightView>
+  )
 }
 
-function mapStateToProps (decks) {
+Deck.propTypes = {
+  deck: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    questions: PropTypes.array.isRequired,
+  }).isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+}
+
+/*function mapStateToProps(decks) {
   return {
-    decks
+    decks,
   }
+}*/
+
+function mapStateToProps({ decks }, { navigation }) {
+  const { deck } = navigation.state.params
+
+  return { deck }
 }
 
 export default connect(mapStateToProps)(Deck)
